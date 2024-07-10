@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "builds": [],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://my-flask-app-xjunl4oxra-wm.a.run.app/api/$1"
+    }
+  ]
+}
