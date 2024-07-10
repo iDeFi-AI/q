@@ -4,7 +4,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://my-flask-app-xjunl4oxra-wm.a.run.app/api/$1"
+      "dest": "https://qidefi-ai-flask-app-xjunl4oxra-wm.a.run.app"
     }
   ]
 }
