@@ -29,6 +29,7 @@ const FinancialAdvisorPage: React.FC = () => {
   const [transformedData, setTransformedData] = useState<any>(null);
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [noTransactionsMessage, setNoTransactionsMessage] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
 
   const handleRiskAnalysis = async () => {
     setLoading(true);
@@ -74,7 +75,7 @@ const FinancialAdvisorPage: React.FC = () => {
     setLoading(true);
     setLoadingMessage('Fetching raw blockchain data...');
     try {
-      const response = await fetch('https://api.idefi.ai/api/get_data_and_metrics?address=YOUR_ADDRESS_HERE', {
+      const response = await fetch(`https://api.idefi.ai/api/get_data_and_metrics?address=${address}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -194,6 +195,13 @@ const FinancialAdvisorPage: React.FC = () => {
       ))}
       <div className="section w-full max-w-4xl mb-8">
         <h2 className="text-2xl font-bold mb-4">Raw Blockchain Data vs. Transformed iDeFi.AI Data</h2>
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter Ethereum address"
+          className="w-full p-2 border rounded mb-4"
+        />
         <button onClick={handleFetchRawData} disabled={loading} className="mt-4 p-2 bg-blue-500 text-white rounded">
           {loading && loadingMessage === 'Fetching raw blockchain data...' ? 'Loading...' : 'Fetch Data'}
         </button>
