@@ -94,7 +94,7 @@ const FinancialAdvisorPage: React.FC = () => {
         return;
       }
 
-      setRawBlockchainData(data.raw_data);
+      setRawBlockchainData([data.raw_data]);
       setTransformedData(data.transformed_data);
       setMetrics(data.metrics);
     } catch (error) {
@@ -161,7 +161,7 @@ const FinancialAdvisorPage: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 px-4 md:px-8 lg:px-16">
+    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 px-4 md:px-8 lg:px-16 text-black">
       {sections.map((section, index) => (
         <div className="section w-full max-w-4xl mb-8" key={index}>
           <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
@@ -200,7 +200,7 @@ const FinancialAdvisorPage: React.FC = () => {
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Enter Ethereum address"
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border rounded mb-4 text-black"
         />
         <button onClick={handleFetchRawData} disabled={loading} className="mt-4 p-2 bg-blue-500 text-white rounded">
           {loading && loadingMessage === 'Fetching raw blockchain data...' ? 'Loading...' : 'Fetch Data'}
