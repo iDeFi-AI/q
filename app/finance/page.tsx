@@ -242,7 +242,7 @@ const FinancialAdvisorPage: React.FC = () => {
           onChange={(e) => setPortfolio(e.target.value)}
           placeholder="Enter portfolio data as JSON array"
           rows={5}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-black"
         />
         <button onClick={handleRiskAnalysis} disabled={loading} className="mt-4 p-2 bg-blue-500 text-white rounded">
           {loading && loadingMessage === 'Analyzing risk...' ? 'Loading...' : 'Analyze Risk'}
@@ -262,7 +262,7 @@ const FinancialAdvisorPage: React.FC = () => {
           onChange={(e) => setPortfolio(e.target.value)}
           placeholder="Enter portfolio data as JSON array"
           rows={5}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-black"
         />
         <button onClick={handlePortfolioOptimization} disabled={loading} className="mt-4 p-2 bg-green-500 text-white rounded">
           {loading && loadingMessage === 'Optimizing portfolio...' ? 'Loading...' : 'Optimize Portfolio'}
