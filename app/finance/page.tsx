@@ -161,7 +161,7 @@ const FinancialAdvisorPage: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 px-4 md:px-8 lg:px-16 text-black">
+    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 px-4 md:px-8 lg:px-16">
       {sections.map((section, index) => (
         <div className="section w-full max-w-4xl mb-8" key={index}>
           <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
@@ -277,27 +277,27 @@ const FinancialAdvisorPage: React.FC = () => {
 
       {metrics && (
         <div className="section w-full max-w-4xl mb-8">
-          <h2 className="text-2xl font-bold mb-4">Metrics</h2>
+          <h2 className="text-2xl font-bold mb-4 ">Metrics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="text-xl font-bold mb-2">Activity Score</h3>
-              <p>{metrics.activity_score}</p>
+              <p className="text-black">{metrics.activity_score}</p>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Risk Scores</h3>
-              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.risk_scores, null, 2)}</pre>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto text-black">{JSON.stringify(metrics.risk_scores, null, 2)}</pre>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Opportunity Scores</h3>
-              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.opportunity_scores, null, 2)}</pre>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto text-black">{JSON.stringify(metrics.opportunity_scores, null, 2)}</pre>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Trust Scores</h3>
-              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.trust_scores, null, 2)}</pre>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto text-black">{JSON.stringify(metrics.trust_scores, null, 2)}</pre>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Volatility Scores</h3>
-              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.volatility_scores, null, 2)}</pre>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto text-black">{JSON.stringify(metrics.volatility_scores, null, 2)}</pre>
             </div>
           </div>
         </div>
