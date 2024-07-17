@@ -11,16 +11,28 @@ interface SectionProps {
   imageAlt?: string;
 }
 
+interface MetricsData {
+  activity_score: number;
+  risk_scores: any;
+  opportunity_scores: any;
+  trust_scores: any;
+  volatility_scores: any;
+}
+
 const FinancialAdvisorPage: React.FC = () => {
   const [portfolio, setPortfolio] = useState<string>('');
   const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
   const [optimizedPortfolio, setOptimizedPortfolio] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [rawBlockchainData, setRawBlockchainData] = useState<any>(null);
   const [transformedData, setTransformedData] = useState<any>(null);
+  const [metrics, setMetrics] = useState<MetricsData | null>(null);
+  const [noTransactionsMessage, setNoTransactionsMessage] = useState<string>('');
 
   const handleRiskAnalysis = async () => {
     setLoading(true);
+    setLoadingMessage('Analyzing risk...');
     try {
       const response = await fetch('/api/quantum_risk_analysis', {
         method: 'POST',
@@ -35,10 +47,12 @@ const FinancialAdvisorPage: React.FC = () => {
       console.error('Error:', error);
     }
     setLoading(false);
+    setLoadingMessage('');
   };
 
   const handlePortfolioOptimization = async () => {
     setLoading(true);
+    setLoadingMessage('Optimizing portfolio...');
     try {
       const response = await fetch('/api/portfolio_optimization', {
         method: 'POST',
@@ -53,63 +67,42 @@ const FinancialAdvisorPage: React.FC = () => {
       console.error('Error:', error);
     }
     setLoading(false);
+    setLoadingMessage('');
   };
 
   const handleFetchRawData = async () => {
     setLoading(true);
+    setLoadingMessage('Fetching raw blockchain data...');
     try {
-      const response = await fetch('/api/get_etherscan_data', {
+      const response = await fetch('https://api.idefi.ai/api/get_data_and_metrics?address=YOUR_ADDRESS_HERE', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
       const data = await response.json();
-      console.log('Raw blockchain data:', data); // Log the data to inspect the response
-      setRawBlockchainData(data);
-      // Simulate transformation of raw data for demonstration
-      setTransformedData(transformRawData(data));
+      console.log('Raw blockchain data:', data);
+
+      if (data.error) {
+        setNoTransactionsMessage(data.error);
+        setRawBlockchainData(null);
+        setTransformedData(null);
+        setMetrics(null);
+        setLoadingMessage('');
+        setLoading(false);
+        return;
+      }
+
+      setRawBlockchainData(data.raw_data);
+      setTransformedData(data.transformed_data);
+      setMetrics(data.metrics);
     } catch (error) {
       console.error('Error:', error);
+      setNoTransactionsMessage('Failed to fetch data');
+    } finally {
+      setLoading(false);
+      setLoadingMessage('');
     }
-    setLoading(false);
-  };
-
-  const transformRawData = (data: any) => {
-    if (!data) {
-      console.error('Invalid raw data:', data);
-      return null;
-    }
-
-    const transactions = Array.isArray(data) ? data : [data];
-
-    // Implement your transformation logic here
-    // This is a simulated transformation
-    return {
-      address: "0x123...",
-      status: "Pass",
-      description: "Not Flagged",
-      ai_insights: {
-        risk_score: 2,
-        summary: "This wallet shows regular activity with no significant red flags detected. The transactions involve moderate amounts and typical gas usage, indicating standard usage patterns.",
-        recommendations: "Monitor periodically for any changes in transaction patterns or unusual activities."
-      },
-      transactions: transactions.map((tx: any) => ({
-        transactionHash: tx.hash,
-        timestamp: new Date(parseInt(tx.timeStamp) * 1000).toISOString(),
-        from: tx.from,
-        to: tx.to,
-        value: `${parseFloat(tx.value) / 1e18} ETH`,
-        gasUsed: tx.gasUsed,
-        status: tx.isError === "0" ? "Success" : "Failed",
-        description: "Regular transaction",
-        ai_analysis: {
-          type: "Standard Transfer",
-          risk_level: "Low",
-          notes: "Typical transfer between two addresses with no irregularities."
-        }
-      }))
-    };
   };
 
   const sections: SectionProps[] = [
@@ -202,7 +195,7 @@ const FinancialAdvisorPage: React.FC = () => {
       <div className="section w-full max-w-4xl mb-8">
         <h2 className="text-2xl font-bold mb-4">Raw Blockchain Data vs. Transformed iDeFi.AI Data</h2>
         <button onClick={handleFetchRawData} disabled={loading} className="mt-4 p-2 bg-blue-500 text-white rounded">
-          Fetch Data
+          {loading && loadingMessage === 'Fetching raw blockchain data...' ? 'Loading...' : 'Fetch Data'}
         </button>
         {rawBlockchainData && transformedData && (
           <div className="comparison-container mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,6 +211,11 @@ const FinancialAdvisorPage: React.FC = () => {
                 {JSON.stringify(transformedData, null, 2)}
               </pre>
             </div>
+          </div>
+        )}
+        {noTransactionsMessage && (
+          <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded">
+            {noTransactionsMessage}
           </div>
         )}
       </div>
@@ -239,7 +237,7 @@ const FinancialAdvisorPage: React.FC = () => {
           className="w-full p-2 border rounded"
         />
         <button onClick={handleRiskAnalysis} disabled={loading} className="mt-4 p-2 bg-blue-500 text-white rounded">
-          Analyze Risk
+          {loading && loadingMessage === 'Analyzing risk...' ? 'Loading...' : 'Analyze Risk'}
         </button>
         {riskAnalysis && (
           <div className="mt-4">
@@ -259,7 +257,7 @@ const FinancialAdvisorPage: React.FC = () => {
           className="w-full p-2 border rounded"
         />
         <button onClick={handlePortfolioOptimization} disabled={loading} className="mt-4 p-2 bg-green-500 text-white rounded">
-          Optimize Portfolio
+          {loading && loadingMessage === 'Optimizing portfolio...' ? 'Loading...' : 'Optimize Portfolio'}
         </button>
         {optimizedPortfolio && (
           <div className="mt-4">
@@ -268,6 +266,34 @@ const FinancialAdvisorPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {metrics && (
+        <div className="section w-full max-w-4xl mb-8">
+          <h2 className="text-2xl font-bold mb-4">Metrics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-xl font-bold mb-2">Activity Score</h3>
+              <p>{metrics.activity_score}</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Risk Scores</h3>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.risk_scores, null, 2)}</pre>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Opportunity Scores</h3>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.opportunity_scores, null, 2)}</pre>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Trust Scores</h3>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.trust_scores, null, 2)}</pre>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Volatility Scores</h3>
+              <pre className="bg-gray-100 p-4 rounded-md text-left overflow-auto">{JSON.stringify(metrics.volatility_scores, null, 2)}</pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

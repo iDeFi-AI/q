@@ -8,6 +8,8 @@ from qiskit.visualization import plot_histogram, circuit_drawer
 from qiskit.providers.ibmq import least_busy
 import matplotlib.pyplot as plt
 from io import BytesIO
+import pandas as pd
+import requests
 
 app = Flask(__name__)
 QASM_DIR = os.path.join(os.path.dirname(__file__), 'qasm_files')
@@ -155,38 +157,6 @@ def portfolio_optimization():
         return jsonify({"optimized_portfolio": optimized_portfolio, "counts": counts})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@app.route('/api/get_etherscan_data', methods=['GET'])
-def get_etherscan_data():
-    try:
-        # Example public address (Testnet)
-        public_address = '0x0000000000000000000000000000000000000000'
-        url = f'https://api.etherscan.io/api?module=account&action=txlist&address={public_address}&startblock=0&endblock=99999999&sort=asc&apikey={ETHERSCAN_API_KEY}&page=1&offset=1'
-
-        app.logger.debug(f"Fetching data from URL: {url}")
-        response = requests.get(url)
-        response.raise_for_status()  # Raise HTTPError for bad responses
-
-        data = response.json()
-        app.logger.debug(f"Response data: {data}")
-
-        if 'result' in data:
-            if data['result']:
-                app.logger.debug(f"Returning first transaction: {data['result'][0]}")
-                return jsonify(data['result'][0])  # Return only the first transaction
-            else:
-                app.logger.debug("No transactions found in 'result'")
-                return jsonify({'error': 'No transactions found'}), 404
-        else:
-            app.logger.debug("'result' field not found in response")
-            return jsonify({'error': "'result' field not found in response"}), 500
-
-    except requests.exceptions.RequestException as e:
-        app.logger.error(f"RequestException: {e}")
-        return jsonify({'error': f'Failed to fetch data from Etherscan: {e}'}), 500
-    except Exception as e:
-        app.logger.error(f"Exception: {e}")
-        return jsonify({'error': f'An error occurred: {e}'}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5328)
