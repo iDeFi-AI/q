@@ -3,16 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 0, 0, 0; /* Now text will be black */
+  --background-start-rgb: 255, 255, 255; /* Start of background gradient is white */
+  --background-end-rgb: 255, 255, 255; /* End of background gradient is also white */
+  --description-color: #4a4a4a; /* For dark grey color in descriptions */
+  --link-color: #ff9f66; /* Neon orange color for links */
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: white) {
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+    --description-color: #d3d3d3;
+    --link-color: #ff9f66;
   }
 }
 
@@ -34,8 +38,30 @@ body {
   background: rgb(var(--background-start-rgb));
 }
 
-h2 {
-  font-size: 36px;
+h1, h2, h5, h6 { 
+  font-weight: bold; /* Making all headers bold */
+  font-size: 34px; 
+}
+
+h3 {
+  font-size: 28px;
+}
+
+h4 {
+  font-size: 21px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--link-color);  /* Neon orange color for links */
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ff5733; /* Lighter neon orange on hover */
 }
 
 /* Header */

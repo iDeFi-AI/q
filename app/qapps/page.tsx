@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { generateQuantumExplanation } from '@/utilities/GenAI';
 
 export default function QApp() {
   const [qasmFiles, setQasmFiles] = useState<string[]>([]);
   const [filename, setFilename] = useState<string>('');
   const [result, setResult] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchQasmFiles = async () => {
@@ -22,6 +24,7 @@ export default function QApp() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     setResult(null);  // Clear previous result
     try {
       const response = await fetch('/api/compile-and-run', {
@@ -33,9 +36,19 @@ export default function QApp() {
       });
       const data = await response.json();
       setResult(data);
+
+      if (!data.error) {
+        const explanation = await generateQuantumExplanation(
+          data.counts,
+          data.histogram,
+          data.circuit_diagram
+        );
+        setResult((prevResult: any) => ({ ...prevResult, explanation }));
+      }
     } catch (error) {
       console.error("Error running the quantum code:", error);
     }
+    setLoading(false);
   };
 
   return (
@@ -54,9 +67,10 @@ export default function QApp() {
         </select>
         <button 
           type="submit" 
-          className="bg-blue-500 text-white p-2 rounded w-full md:w-1/2"
+          className="bg-neorange hover:bg-neohover text-white p-2 rounded w-full md:w-1/2"
+          disabled={loading}
         >
-          Run
+          {loading ? 'Running...' : 'Run'}
         </button>
       </form>
       {result && (
@@ -66,21 +80,33 @@ export default function QApp() {
             <p className="text-red-500">{result.error}</p>
           ) : (
             <>
-              <pre className="bg-gray-100 p-4 rounded mb-4 overflow-x-auto">
+              <pre className="bg-gray-100 text-black p-4 rounded mb-4 overflow-x-auto">
                 {JSON.stringify(result.counts, null, 2)}
               </pre>
               <h3 className="text-lg font-semibold mb-2">Histogram:</h3>
-              <img 
-                src={`data:image/png;base64,${result.histogram}`} 
-                alt="Histogram" 
-                className="w-full md:w-1/2 mx-auto mb-4"
-              />
+              {result.histogram && (
+                <img 
+                  src={`data:image/png;base64,${result.histogram}`} 
+                  alt="Histogram" 
+                  className="w-full md:w-1/2 mx-auto mb-4"
+                />
+              )}
               <h3 className="text-lg font-semibold mb-2">Circuit Diagram:</h3>
-              <img 
-                src={`data:image/png;base64,${result.circuit_diagram}`} 
-                alt="Circuit Diagram" 
-                className="w-full md:w-1/2 mx-auto mb-4"
-              />
+              {result.circuit_diagram && (
+                <img 
+                  src={`data:image/png;base64,${result.circuit_diagram}`} 
+                  alt="Circuit Diagram" 
+                  className="w-full md:w-1/2 mx-auto mb-4"
+                />
+              )}
+              {result.explanation && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold mb-2">Explanation:</h3>
+                  <p className="bg-gray-100 text-black p-4 rounded mb-4 overflow-x-auto">
+                    {result.explanation}
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>

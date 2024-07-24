@@ -21,7 +21,7 @@ export default function Home() {
       {/* Background GIF */}
       <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
         <Image
-          src="/background.gif" // Replace with the path to your GIF file
+          src="/float.gif" // Replace with the path to your GIF file
           alt="Background GIF"
           layout="fill"
           objectFit="cover"
@@ -32,21 +32,15 @@ export default function Home() {
         {/* Company Logo */}
         <div className="mb-4">
           <Image
-            src="/qidefi-ai.png" // Replace with the path to your company logo
+            src="/qidefi-ai-black.png" // Replace with the path to your company logo
             alt="Company Logo"
             width={300} // Adjust width as needed
             height={300} // Adjust height as needed
           />
         </div>
-
-        {/* Company Name */}
-
-        {/* Company Phrase */}
-        <h2 className="text-white text-lg mb-6">A New Era of Quantum Applications</h2>
-
         {/* Enter Button with loading state */}
         <button 
-          className="bg-white text-black py-2 px-4 rounded-lg text-lg font-bold hover:bg-gray-200 transition duration-300"
+          className="bg-neorange text-white py-2 px-4 rounded-lg text-lg font-bold hover:bg-neohover transition duration-300"
           onClick={handleClick} // Call handleClick function on button click
           disabled={isLoading} // Disable button when loading
         >

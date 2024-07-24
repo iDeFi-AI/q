@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { generateQuantumExplanation } from '@/utilities/GenAI';
 
 interface SectionProps {
   title: string;
@@ -43,7 +44,8 @@ const FinancialAdvisorPage: React.FC = () => {
         body: JSON.stringify({ portfolio: JSON.parse(portfolio) }),
       });
       const data = await response.json();
-      setRiskAnalysis(data.risk_analysis);
+      const explanation = await generateQuantumExplanation(data.risk_analysis.counts, data.risk_analysis.histogram, data.risk_analysis.circuit_diagram);
+      setRiskAnalysis({ ...data.risk_analysis, explanation });
     } catch (error) {
       console.error('Error:', error);
     }

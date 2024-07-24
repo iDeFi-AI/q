@@ -1,181 +1,56 @@
-import { openaiApiKey } from "@/constants/env";
+import { openaiApiKey } from '@/constants/env';
 
-interface QuantumAnalysisResult {
-  risk_analysis: {
-    risk_score: number;
-    counts: { [key: string]: number };
-  };
-}
+const extractImageMetadata = (base64String: string): string => {
+  // Extract metadata from base64 string (e.g., size)
+  const imageSize = Math.ceil((base64String.length * 3) / 4);
+  return `Image size: ${imageSize} bytes`;
+};
 
-interface PortfolioOptimizationResult {
-  optimized_portfolio: string[];
-  counts: { [key: string]: number };
-}
+export const generateQuantumExplanation = async (
+  counts: { [key: string]: number },
+  histogramBase64: string,
+  circuitBase64: string
+): Promise<string> => {
+  const histogramMetadata = extractImageMetadata(histogramBase64);
+  const circuitMetadata = extractImageMetadata(circuitBase64);
 
-// Analyze Quantum Risk
-export const analyzeQuantumRisk = async (qasmFile: string): Promise<QuantumAnalysisResult> => {
+  const prompt = `
+    Given the following quantum computation results, provide a detailed explanation for a financial advisor:
+
+    Counts:
+    ${JSON.stringify(counts, null, 2)}
+
+    Explain the histogram and circuit diagram shown below:
+    Histogram Metadata: ${histogramMetadata}
+    Circuit Diagram Metadata: ${circuitMetadata}
+  `;
+
   try {
-    const response = await fetch('/api/quantum_risk_analysis', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${openaiApiKey}`,
       },
-      body: JSON.stringify({ qasm_file: qasmFile }),
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo-16k',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1000,
+        temperature: 0.5
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Quantum risk analysis request failed');
+      const errorDetails = await response.json();
+      console.error('Error details:', errorDetails);
+      throw new Error('OpenAI API request failed');
     }
 
-    const data = await response.json();
-    return data;
+    const responseData = await response.json();
+    const explanation = responseData.choices[0].message.content.trim();
+    return explanation;
   } catch (error) {
-    console.error('Error analyzing quantum risk:', error);
-    throw error;
-  }
-};
-
-// Optimize Portfolio
-export const optimizePortfolio = async (qasmFile: string): Promise<PortfolioOptimizationResult> => {
-  try {
-    const response = await fetch('/api/portfolio_optimization', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${openaiApiKey}`,
-      },
-      body: JSON.stringify({ qasm_file: qasmFile }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Portfolio optimization request failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error optimizing portfolio:', error);
-    throw error;
-  }
-};
-
-// Upload Data File
-export const uploadDataFile = async (file: File): Promise<{ message: string; qasm_file: string }> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await fetch('/api/upload_data', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Data file upload failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error uploading data file:', error);
-    throw error;
-  }
-};
-
-// Compile and Run QASM File
-export const compileAndRunQasmFile = async (filename: string, useIbmBackend = false): Promise<any> => {
-  try {
-    const response = await fetch('/api/compile-and-run', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ filename, use_ibm_backend: useIbmBackend }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Compile and run QASM file request failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error compiling and running QASM file:', error);
-    throw error;
-  }
-};
-
-// Get QASM Files
-export const getQasmFiles = async (): Promise<string[]> => {
-  try {
-    const response = await fetch('/api/qasm-files');
-
-    if (!response.ok) {
-      throw new Error('QASM files request failed');
-    }
-
-    const data = await response.json();
-    return data.files;
-  } catch (error) {
-    console.error('Error fetching QASM files:', error);
-    throw error;
-  }
-};
-
-// Store Quantum State in Memory
-export const storeQuantumState = async (state: string): Promise<any> => {
-  try {
-    const response = await fetch('/api/store', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ state }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Store quantum state request failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error storing quantum state:', error);
-    throw error;
-  }
-};
-
-// Retrieve Quantum State from Memory
-export const retrieveQuantumState = async (): Promise<any> => {
-  try {
-    const response = await fetch('/api/retrieve');
-
-    if (!response.ok) {
-      throw new Error('Retrieve quantum state request failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error retrieving quantum state:', error);
-    throw error;
-  }
-};
-
-// Get Etherscan Data
-export const getEtherscanData = async (): Promise<any> => {
-  try {
-    const response = await fetch('/api/get_etherscan_data');
-
-    if (!response.ok) {
-      throw new Error('Etherscan data request failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching Etherscan data:', error);
+    console.error('Error generating explanation:', error);
     throw error;
   }
 };
